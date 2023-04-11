@@ -7,6 +7,7 @@ module.exports = {
     reactStrictMode: true,
     images: { unoptimized: true },
     output: 'export',
+    distDir: 'listingsBuild',
     assetPrefix: isProd ? '.' : undefined,
     webpack: (config) => {
         const fallback = config.resolve.fallback || {};
