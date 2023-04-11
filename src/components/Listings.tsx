@@ -1,16 +1,16 @@
-import { PlaylistRequest } from '@/types';
+import { MediaRequests } from '@/types';
 import { useQueries } from '@tanstack/react-query';
 import VideoCard from '@/components/VideoCard';
 import createVideoList from '@/components/createVideoList';
-import fetchRecentVideos from '@/components/fetchRecentVideos';
+import fetchPlaylistVideos from '@/components/fetchPlaylistVideos';
 import { startTransition, useReducer } from 'react';
 import NoVideosMessage from '@/components/NoVideosMessage';
+import fetchIndividualVideo from '@/components/fetchIndividualVideo';
 
 interface ListingsProps {
-    playlistRequests: PlaylistRequest[];
+    mediaRequests: MediaRequests;
 }
 
-// TODO: Add the ability to include individual videos
 /*
 Feature ideas:
   Try to make the page look better
@@ -18,14 +18,23 @@ Feature ideas:
   Allow video restoration???
 */
 
-export default function Listings({ playlistRequests }: ListingsProps) {
+const reactQuerySettings = { staleTime: Infinity, refetchOnWindowFocus: false };
+
+export default function Listings({ mediaRequests }: ListingsProps) {
     // noinspection JSUnusedGlobalSymbols
-    const requestPromises = useQueries({
-        queries: playlistRequests.map((request) => ({
+    const playlistRequestPromises = useQueries({
+        queries: mediaRequests.playlists.map((request) => ({
+            ...reactQuerySettings,
             queryKey: [request.id],
-            queryFn: () => fetchRecentVideos(request),
-            staleTime: Infinity,
-            refetchOnWindowFocus: false,
+            queryFn: () => fetchPlaylistVideos(request),
+        })),
+    });
+
+    const videoRequestPromises = useQueries({
+        queries: mediaRequests.videos.map((request) => ({
+            ...reactQuerySettings,
+            queryKey: [request.id],
+            queryFn: () => fetchIndividualVideo(request),
         })),
     });
 
@@ -52,30 +61,36 @@ export default function Listings({ playlistRequests }: ListingsProps) {
         return nextState;
     }
 
-    const videoList = createVideoList(requestPromises, doneVideoIDs);
+    const videoList = createVideoList(
+        playlistRequestPromises,
+        videoRequestPromises,
+        doneVideoIDs,
+    );
+
+    const stillLoading =
+        playlistRequestPromises.some(
+            (request) => request.status === 'loading',
+        ) ||
+        videoRequestPromises.some((request) => request.status === 'loading');
 
     return (
         <div className="collectionContainer">
             {videoList.map((video) => (
                 <VideoCard
-                    key={video.id}
+                    key={video.videoID}
                     video={video}
                     removeVideo={() =>
                         startTransition(() => {
                             dispatchDoneVideoIDs({
                                 actionType: 'add',
-                                newID: video.snippet.resourceId.videoId,
+                                newID: video.videoID,
                             });
                         })
                     }
                 />
             ))}
             {videoList.length === 0 ? (
-                <NoVideosMessage
-                    stillLoading={requestPromises.some(
-                        (request) => request.status === 'loading',
-                    )}
-                />
+                <NoVideosMessage stillLoading={stillLoading} />
             ) : null}
         </div>
     );
