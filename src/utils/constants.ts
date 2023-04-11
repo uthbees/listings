@@ -1,0 +1,1 @@
+export const RETRIEVED_PER_PLAYLIST = 20;

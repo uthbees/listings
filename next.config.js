@@ -5,6 +5,7 @@ const isProd = process.env.NODE_ENV === 'production';
 // noinspection JSUnusedGlobalSymbols
 module.exports = {
     reactStrictMode: true,
+    images: { unoptimized: true },
     output: 'export',
     assetPrefix: isProd ? '.' : undefined,
     webpack: (config) => {
