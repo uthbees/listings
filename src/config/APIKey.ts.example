@@ -1,0 +1,2 @@
+// noinspection SpellCheckingInspection
+export const APIKey = 'YouTube API key here';

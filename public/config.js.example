@@ -1,0 +1,13 @@
+/* eslint-disable */
+// noinspection SpellCheckingInspection,JSUnusedGlobalSymbols
+
+export const playlists = [
+    // A normal playlist.
+    { id: 'PLabcdebfghijklmnopqrstuvwxyz12345' },
+    // A normal playlist, but all the videos instead of just the most recent ones.
+    { id: 'PL12345abcdebfghijklmnopqrstuvwxyz', retrieveAll: true },
+    // A channel playlist.
+    { id: 'UULFabcdebfghijklmnopqrstu' },
+    // You can get all the videos for a channel too, if you want. There's really no difference between the playlist types.
+    { id: 'UULFqrstuabcdebfghijklmnop', retrieveAll: true },
+];

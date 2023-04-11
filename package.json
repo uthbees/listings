@@ -3,9 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@types/node": "18.15.11",
-    "@types/react": "18.0.34",
-    "@types/react-dom": "18.0.11",
     "autoprefixer": "10.4.14",
     "eslint": "8.38.0",
     "eslint-config-next": "13.3.0",
@@ -24,7 +21,10 @@
     "eslint-plugin-unused-imports": "^2.0.0",
     "husky": "^8.0.3",
     "lint-staged": "^13.2.1",
-    "prettier": "^2.8.7"
+    "prettier": "^2.8.7",
+    "@types/node": "18.15.11",
+    "@types/react": "18.0.34",
+    "@types/react-dom": "18.0.11"
   },
   "scripts": {
     "start": "next dev",

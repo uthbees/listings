@@ -1,38 +1,31 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Listings for YouTube
 
-## Getting Started
+### Warning
 
-First, run the development server:
+This project should not be hosted publicly - there are API key issues that would need to be resolved for that to work (see the section at the bottom for details).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+### Setup
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Other than cloning/installing/building/etc., you'll need to set up your configuration. Create duplicates of the .example files in public and src/config (and remove the .example extensions) and fill in the blanks - your YouTube API key and your desired list of channels and playlists. (You'll be able to edit public/config.js after building the application, but the API key gets built in.)
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+### Configuring playlists
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+To run, the program requires a list of playlist IDs that you'll need to supply manually by going to the YouTube website and - in most cases - copying it from the URL.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+#### Normal playlists
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Go to the page for the playlist (or a page playing the playlist) and look at the URL - you should see a parameter called `list` with a string of numbers, letters, and maybe symbols. Copy and paste that into the playlists array.
 
-## Learn More
+#### Channel playlists
 
-To learn more about Next.js, take a look at the following resources:
+YouTube has a feature where it creates an auto-generated playlist for each user containing every public video on their channel. If the user you want the list for has a "Videos" row on their front page, you should be able to click on the "Play all" button to access the list, at which point you can get the ID as normal.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+If the user doesn't have that row on their front page, you can still get to the list, it's just a little more effort. Open the inspector or view the page source and look for their channel ID - it should be in the HTML somewhere. You're looking for a string starting with "UC". Once you find it, replace that "UC" at the beginning with "UULF", and you should have the id for the list of all the user's videos. If you want to test it, go to the page for any other playlist and substitute the list ID in the URL - it should work without any problems.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+#### Getting all the videos
 
-## Deploy on Vercel
+In some cases, you may want to get all the videos from a given playlist or channel, not just the most recent ones. For these cases, you can set the `retrieveAll` parameter for the playlist to `true` in your config file (as demonstrated in the example).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Problems with hosting publicly
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+For public hosting to work, we would either need every user to provide their own YouTube API key, or we would need to get a backend so that the client never sees the API key at all. (Caution - letting other people use your API key has security implications, especially if you haven't restricted it!)
