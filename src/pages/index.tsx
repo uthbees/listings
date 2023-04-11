@@ -3,12 +3,16 @@ import Script from 'next/script';
 import getPathToPublicFolder from '@/utils/getPathToPublicFolder';
 import Listings from '@/components/Listings';
 import { useState } from 'react';
-import { Playlist } from '@/types';
+import { PlaylistRequest } from '@/types';
+import { QueryClient } from '@tanstack/query-core';
+import { QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 export default function App() {
-    const [configPlaylists, setConfigPlaylists] = useState<Playlist[] | null>(
-        null,
-    );
+    const [playlistRequests, setPlaylistRequests] = useState<
+        PlaylistRequest[] | null
+    >(null);
 
     return (
         <>
@@ -18,9 +22,13 @@ export default function App() {
             <Script
                 src={getPathToPublicFolder('config.js')}
                 // @ts-expect-error - the playlists variable is loaded from public/config.js
-                onLoad={() => setConfigPlaylists(playlists)}
+                onLoad={() => setPlaylistRequests(playlists)}
             />
-            {configPlaylists ? <Listings playlists={configPlaylists} /> : null}
+            <QueryClientProvider client={queryClient}>
+                {playlistRequests ? (
+                    <Listings playlistRequests={playlistRequests} />
+                ) : null}
+            </QueryClientProvider>
         </>
     );
 }

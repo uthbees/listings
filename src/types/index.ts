@@ -1,4 +1,4 @@
-export interface Playlist {
+export interface PlaylistRequest {
     id: string;
     retrieveAll?: boolean;
 }

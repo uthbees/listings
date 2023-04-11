@@ -1,0 +1,58 @@
+.collectionContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.videoContainer {
+    width: 320px;
+    white-space: nowrap;
+    margin: 20px;
+    padding: 10px;
+    border: 1px solid black;
+    border-radius: 10px;
+    background-color: #dddddd;
+    box-shadow: 10px 5px 5px lightgrey;
+    position: relative;
+}
+
+.thumbnailContainer {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.thumbnailLink {
+    display: inline-block;
+    height: 180px;
+}
+
+.textLine {
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.button {
+    cursor: pointer;
+    user-select: none;
+    color: white;
+    background-color: #1565c0;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 3px 3px 4px -1px gray;
+}
+
+.doneButton {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+}
+
+.theEnd {
+    width: 100%;
+    height: calc(100vh - 16px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
