@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import { NormalizedVideoData } from '@/types';
+import { Tooltip } from '@mui/material';
 
 interface CardProps {
     video: NormalizedVideoData;
@@ -38,7 +39,9 @@ export default function VideoCard({ video, removeVideo }: CardProps) {
                     />
                 </a>
             </div>
-            <p className="textLine">{video.videoTitle}</p>
+            <Tooltip title={video.videoTitle}>
+                <p className="textLine">{video.videoTitle}</p>
+            </Tooltip>
             <p className="textLine">{video.channelTitle}</p>
             <p className="textLine">{datePublished}</p>
             <div
