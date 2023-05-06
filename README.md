@@ -26,11 +26,17 @@ If the user doesn't have that row on their front page, you can still get to the 
 
 #### Getting all the videos from a playlist
 
-In some cases, you may want to get all the videos from a given playlist or channel, not just the most recent ones. For these cases, you can set the `retrieveAll` parameter for the playlist to `true` in your config file (as demonstrated in the example).
+In some cases, you may want to get all the videos from a given playlist or channel, not just the most recent ones. For these cases, you can set the `retrieveAll` parameter for the playlist to `true` in your config file.
 
 #### Listing individual videos
 
-To add individual videos to your list, just put the video IDs into the videos array instead of the playlists one.
+To add individual videos to your list, put the video IDs into an array at `exportedConfig.requests.videos`.
+
+#### Extra configuration
+
+To configure the app in detail, use the object at `exportedConfig.options`. Here are the available fields:
+
+(None available yet)
 
 ### Problems with hosting publicly
 

@@ -1,4 +1,4 @@
-import { MediaRequests } from '@/types';
+import { AppConfig } from '@/types';
 import { useQueries } from '@tanstack/react-query';
 import VideoCard from '@/components/VideoCard';
 import createVideoList from '@/components/createVideoList';
@@ -8,7 +8,7 @@ import NoVideosMessage from '@/components/NoVideosMessage';
 import fetchIndividualVideo from '@/components/fetchIndividualVideo';
 
 interface ListingsProps {
-    mediaRequests: MediaRequests;
+    appConfig: AppConfig;
 }
 
 /*
@@ -20,9 +20,11 @@ Feature ideas:
 
 const reactQuerySettings = { staleTime: Infinity, refetchOnWindowFocus: false };
 
-export default function Listings({ mediaRequests }: ListingsProps) {
+export default function Listings({ appConfig }: ListingsProps) {
+    const { requests, options } = appConfig;
+
     const playlistRequestPromises = useQueries({
-        queries: mediaRequests.playlists.map((request) => ({
+        queries: (requests?.playlists || []).map((request) => ({
             ...reactQuerySettings,
             queryKey: [request.id],
             queryFn: () => fetchPlaylistVideos(request),
@@ -30,7 +32,7 @@ export default function Listings({ mediaRequests }: ListingsProps) {
     });
 
     const videoRequestPromises = useQueries({
-        queries: mediaRequests.videos.map((request) => ({
+        queries: (requests?.videos || []).map((request) => ({
             ...reactQuerySettings,
             queryKey: [request.id],
             queryFn: () => fetchIndividualVideo(request),

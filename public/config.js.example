@@ -16,4 +16,7 @@ const requests = {
         // If you want to add individual videos to your list, put their IDs here. No other options (for now).
         { id: 'aB3dE6gH9jK' }
     ],
+    options: {
+        // Detailed configuration options are available here, see the readme for details
+    },
 ];

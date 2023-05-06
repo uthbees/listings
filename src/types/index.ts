@@ -1,6 +1,11 @@
+export interface AppConfig {
+    requests?: MediaRequests;
+    options?: AppOptions;
+}
+
 export interface MediaRequests {
-    playlists: PlaylistRequest[];
-    videos: VideoRequest[];
+    playlists?: PlaylistRequest[];
+    videos?: VideoRequest[];
 }
 
 export interface PlaylistRequest {
@@ -11,6 +16,9 @@ export interface PlaylistRequest {
 export interface VideoRequest {
     id: string;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface AppOptions {}
 
 export interface NormalizedVideoData {
     videoID: string;
