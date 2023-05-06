@@ -22,13 +22,15 @@ YouTube has a feature where it creates an auto-generated playlist for each user 
 
 If the user doesn't have that row on their front page, you can still get to the list, it's just a little more effort. Open the inspector or view the page source and look for their channel ID - it should be in the HTML somewhere. You're looking for a string starting with "UC". Once you find it, replace that "UC" at the beginning with "UULF", and you should have the id for the list of all the user's videos. If you want to test it, go to the page for any other playlist and substitute the list ID in the URL - it should work without any problems.
 
+### Other features
+
 #### Getting all the videos from a playlist
 
 In some cases, you may want to get all the videos from a given playlist or channel, not just the most recent ones. For these cases, you can set the `retrieveAll` parameter for the playlist to `true` in your config file (as demonstrated in the example).
 
 #### Listing individual videos
 
-If you want to add individual videos to your list, this project supports that as well. Just put the IDs into the videos array instead of the playlists one.
+To add individual videos to your list, just put the video IDs into the videos array instead of the playlists one.
 
 ### Problems with hosting publicly
 
