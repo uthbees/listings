@@ -21,7 +21,6 @@ Feature ideas:
 const reactQuerySettings = { staleTime: Infinity, refetchOnWindowFocus: false };
 
 export default function Listings({ mediaRequests }: ListingsProps) {
-    // noinspection JSUnusedGlobalSymbols
     const playlistRequestPromises = useQueries({
         queries: mediaRequests.playlists.map((request) => ({
             ...reactQuerySettings,
