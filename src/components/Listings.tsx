@@ -66,6 +66,7 @@ export default function Listings({ appConfig }: ListingsProps) {
         playlistRequestPromises,
         videoRequestPromises,
         doneVideoIDs,
+        options || {},
     );
 
     const stillLoading =

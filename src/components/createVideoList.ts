@@ -1,13 +1,20 @@
 import { UseQueryResult } from '@tanstack/react-query';
 import { YoutubePlaylistItem, YoutubeVideo } from 'youtube.ts';
-import { NormalizedVideoData } from '@/types';
-import { DEFAULT_THUMBNAIL_URL } from '@/utils/constants';
+import { AppOptions, NormalizedVideoData } from '@/types';
+import {
+    DEFAULT_THUMBNAIL_URL,
+    DEFAULT_WEEKLY_REFRESH_DAY,
+    DEFAULT_WEEKLY_REFRESH_HOUR,
+} from '@/utils/constants';
 
 export default function createVideoList(
     playlistRequestPromises: UseQueryResult<YoutubePlaylistItem[]>[],
     videoRequestPromises: UseQueryResult<YoutubeVideo>[],
     doneVideoIDs: string[],
+    options: AppOptions,
 ) {
+    const latestCutoffMs = getLatestCutoffMs(options);
+
     return [
         ...createDataArrayFromPromises({
             promises: playlistRequestPromises,
@@ -18,7 +25,11 @@ export default function createVideoList(
             type: 'videos',
         }),
     ]
-        .filter((video) => !doneVideoIDs.includes(video.videoID))
+        .filter(
+            (video) =>
+                !doneVideoIDs.includes(video.videoID) &&
+                Date.parse(video.publishedAt) < latestCutoffMs,
+        )
         .sort((a, b) => {
             const timeInMillisecondsA = Date.parse(a.publishedAt);
             const timeInMillisecondsB = Date.parse(b.publishedAt);
@@ -75,6 +86,35 @@ function createDataArrayFromPromises({
                 }
         }
     });
+}
+
+function getLatestCutoffMs(options: AppOptions): number {
+    if (!options.useWeeklyRefresh) {
+        return Date.now();
+    }
+
+    const refreshDay =
+        typeof options.weeklyRefreshDay === 'number' &&
+        options.weeklyRefreshDay >= 0 &&
+        options.weeklyRefreshDay <= 6
+            ? options.weeklyRefreshDay
+            : DEFAULT_WEEKLY_REFRESH_DAY;
+
+    const refreshHour =
+        typeof options.weeklyRefreshHour === 'number' &&
+        options.weeklyRefreshHour >= 0 &&
+        options.weeklyRefreshHour <= 23
+            ? options.weeklyRefreshHour
+            : DEFAULT_WEEKLY_REFRESH_HOUR;
+
+    const latestCutoffDate = new Date();
+    latestCutoffDate.setHours(refreshHour, 0, 0, 0);
+
+    const dayDistance = refreshDay - latestCutoffDate.getDay();
+
+    latestCutoffDate.setDate(latestCutoffDate.getDate() + dayDistance);
+
+    return latestCutoffDate.getTime();
 }
 
 interface CDAPlaylists {

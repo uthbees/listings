@@ -17,8 +17,11 @@ export interface VideoRequest {
     id: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface AppOptions {}
+export interface AppOptions {
+    useWeeklyRefresh?: boolean;
+    weeklyRefreshDay?: number;
+    weeklyRefreshHour?: number;
+}
 
 export interface NormalizedVideoData {
     videoID: string;

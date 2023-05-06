@@ -36,7 +36,9 @@ To add individual videos to your list, put the video IDs into an array at `expor
 
 To configure the app in detail, use the object at `exportedConfig.options`. Here are the available fields:
 
-(None available yet)
+-   `useWeeklyRefresh` (boolean): If true, will "release" (start displaying) newly published videos once a week, instead of immediately. This can be helpful to avoid feeling like you have to check back all the time.
+    -   `weeklyRefreshDay` (int between 0 and 6): The day to trigger the refresh, with 0 being Sunday. Defaults to 0.
+    -   `weeklyRefreshHour` (int between 0 and 23): The hour to trigger the refresh, with 0 being midnight. Defaults to 0;
 
 ### Problems with hosting publicly
 
