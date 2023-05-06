@@ -27,8 +27,8 @@ export default function createVideoList(
             //		in a playlist together (because they were unprivated one at a time),
             //		so we look at the position within the playlist
             if (timeInMillisecondsA === timeInMillisecondsB)
-                return b.playlistPosition - a.playlistPosition;
-            else return timeInMillisecondsB - timeInMillisecondsA;
+                return a.playlistPosition - b.playlistPosition;
+            else return timeInMillisecondsA - timeInMillisecondsB;
         });
 }
 function createDataArrayFromPromises({
