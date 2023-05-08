@@ -1,11 +1,8 @@
 import { UseQueryResult } from '@tanstack/react-query';
 import { YoutubePlaylistItem, YoutubeVideo } from 'youtube.ts';
 import { AppOptions, NormalizedVideoData } from '@/types';
-import {
-    DEFAULT_THUMBNAIL_URL,
-    DEFAULT_WEEKLY_REFRESH_DAY,
-    DEFAULT_WEEKLY_REFRESH_HOUR,
-} from '@/utils/constants';
+import { DEFAULT_THUMBNAIL_URL } from '@/utils/constants';
+import getLatestCutoff from '@/utils/getLatestCutoff';
 
 export default function createVideoList(
     playlistRequestPromises: UseQueryResult<YoutubePlaylistItem[]>[],
@@ -13,8 +10,8 @@ export default function createVideoList(
     doneVideoIDs: string[],
     options: AppOptions,
 ) {
-    const latestCutoffMs = getLatestCutoffMs(options);
-    console.log(latestCutoffMs);
+    const latestCutoffMs = getLatestCutoff(options).getTime();
+
     return [
         ...createDataArrayFromPromises({
             promises: playlistRequestPromises,
@@ -86,35 +83,6 @@ function createDataArrayFromPromises({
                 }
         }
     });
-}
-
-function getLatestCutoffMs(options: AppOptions): number {
-    if (!options.useWeeklyRefresh) {
-        return Date.now();
-    }
-
-    const refreshDay =
-        typeof options.weeklyRefreshDay === 'number' &&
-        options.weeklyRefreshDay >= 0 &&
-        options.weeklyRefreshDay <= 6
-            ? options.weeklyRefreshDay
-            : DEFAULT_WEEKLY_REFRESH_DAY;
-
-    const refreshHour =
-        typeof options.weeklyRefreshHour === 'number' &&
-        options.weeklyRefreshHour >= 0 &&
-        options.weeklyRefreshHour <= 23
-            ? options.weeklyRefreshHour
-            : DEFAULT_WEEKLY_REFRESH_HOUR;
-
-    const latestCutoffDate = new Date();
-    latestCutoffDate.setHours(refreshHour, 0, 0, 0);
-
-    const dayDistance = refreshDay - latestCutoffDate.getDay();
-
-    latestCutoffDate.setDate(latestCutoffDate.getDay() + dayDistance);
-
-    return latestCutoffDate.getTime();
 }
 
 interface CDAPlaylists {

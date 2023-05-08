@@ -95,7 +95,10 @@ export default function Listings({ appConfig }: ListingsProps) {
                 />
             ))}
             {videoList.length === 0 ? (
-                <NoVideosMessage stillLoading={stillLoading} />
+                <NoVideosMessage
+                    stillLoading={stillLoading}
+                    options={appOptions}
+                />
             ) : null}
         </div>
     );
