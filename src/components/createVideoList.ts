@@ -14,7 +14,7 @@ export default function createVideoList(
     options: AppOptions,
 ) {
     const latestCutoffMs = getLatestCutoffMs(options);
-
+    console.log(latestCutoffMs);
     return [
         ...createDataArrayFromPromises({
             promises: playlistRequestPromises,
@@ -112,7 +112,7 @@ function getLatestCutoffMs(options: AppOptions): number {
 
     const dayDistance = refreshDay - latestCutoffDate.getDay();
 
-    latestCutoffDate.setDate(latestCutoffDate.getDate() + dayDistance);
+    latestCutoffDate.setDate(latestCutoffDate.getDay() + dayDistance);
 
     return latestCutoffDate.getTime();
 }
