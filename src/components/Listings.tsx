@@ -15,13 +15,6 @@ interface ListingsProps {
     appConfig: AppConfig;
 }
 
-/*
-Feature ideas:
-  Try to make the page look better
-  Add animation on video removal?
-  Allow video restoration???
-*/
-
 const reactQuerySettings = { staleTime: Infinity, refetchOnWindowFocus: false };
 
 export default function Listings({ appConfig }: ListingsProps) {
