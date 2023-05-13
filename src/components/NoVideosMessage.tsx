@@ -14,7 +14,7 @@ export default function NoVideosMessage({
     options,
 }: NoVideosMessageProps) {
     return (
-        <div className="centerInPage">
+        <div className="centerInPage" data-testid="noVideosMessage">
             {stillLoading ? 'Loading...' : getEmptyMessage(options)}
         </div>
     );

@@ -1,5 +1,9 @@
 import { AppConfig, AppOptions, PlaylistRequest, VideoRequest } from '@/types';
-import { useQueries } from '@tanstack/react-query';
+import {
+    QueryClient,
+    QueryClientProvider,
+    useQueries,
+} from '@tanstack/react-query';
 import VideoCard from '@/components/VideoCard';
 import createVideoList from '@/components/createVideoList';
 import fetchPlaylistVideos from '@/components/fetchPlaylistVideos';
@@ -21,6 +25,14 @@ Feature ideas:
 const reactQuerySettings = { staleTime: Infinity, refetchOnWindowFocus: false };
 
 export default function Listings({ appConfig }: ListingsProps) {
+    return (
+        <QueryClientProvider client={queryClient}>
+            <ListingsInternal appConfig={appConfig} />
+        </QueryClientProvider>
+    );
+}
+
+function ListingsInternal({ appConfig }: ListingsProps) {
     const requestedPlaylists: PlaylistRequest[] =
         appConfig.requests?.playlists || [];
     const requestedVideos: VideoRequest[] = appConfig.requests?.videos || [];
@@ -103,6 +115,8 @@ export default function Listings({ appConfig }: ListingsProps) {
         </div>
     );
 }
+
+const queryClient = new QueryClient();
 
 interface UDVActionAdd {
     actionType: 'add';
