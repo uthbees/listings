@@ -5,8 +5,9 @@ import {
 } from '@/utils/constants';
 
 export default function getLatestCutoff(options: AppOptions): Date {
+    const now = new Date();
     if (!options.useWeeklyRefresh) {
-        return new Date();
+        return now;
     }
 
     const refreshDay =
@@ -23,12 +24,18 @@ export default function getLatestCutoff(options: AppOptions): Date {
             ? options.weeklyRefreshHour
             : DEFAULT_WEEKLY_REFRESH_HOUR;
 
-    const latestCutoffDate = new Date();
+    // Get the difference in days and normalize it so that it's between 0 and 6
+    const daysSinceLastRefreshDay = (now.getDay() - refreshDay + 7) % 7;
+
+    const latestCutoffDate = new Date(now);
     latestCutoffDate.setHours(refreshHour, 0, 0, 0);
+    latestCutoffDate.setDate(now.getDate() - daysSinceLastRefreshDay);
 
-    const dayDistance = refreshDay - latestCutoffDate.getDay();
-
-    latestCutoffDate.setDate(latestCutoffDate.getDay() + dayDistance);
+    // If it's the refresh day but the current time is before the refresh hour,
+    //  subtract 7 days to get the previous refresh day
+    if (now.getDay() === refreshDay && now.getHours() < refreshHour) {
+        latestCutoffDate.setDate(latestCutoffDate.getDate() - 7);
+    }
 
     return latestCutoffDate;
 }
