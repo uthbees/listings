@@ -1,8 +1,5 @@
 import { AppOptions } from '@/types';
-import {
-    DEFAULT_WEEKLY_REFRESH_DAY,
-    DEFAULT_WEEKLY_REFRESH_HOUR,
-} from '@/utils/constants';
+import { getValidOption } from '@/utils/getValidOption';
 
 export default function getLatestCutoff(options: AppOptions): Date {
     const now = new Date();
@@ -10,19 +7,14 @@ export default function getLatestCutoff(options: AppOptions): Date {
         return now;
     }
 
-    const refreshDay =
-        typeof options.weeklyRefreshDay === 'number' &&
-        options.weeklyRefreshDay >= 0 &&
-        options.weeklyRefreshDay <= 6
-            ? options.weeklyRefreshDay
-            : DEFAULT_WEEKLY_REFRESH_DAY;
-
-    const refreshHour =
-        typeof options.weeklyRefreshHour === 'number' &&
-        options.weeklyRefreshHour >= 0 &&
-        options.weeklyRefreshHour <= 23
-            ? options.weeklyRefreshHour
-            : DEFAULT_WEEKLY_REFRESH_HOUR;
+    const refreshDay = getValidOption(
+        options.weeklyRefreshDay,
+        'weeklyRefreshDay',
+    );
+    const refreshHour = getValidOption(
+        options.weeklyRefreshHour,
+        'weeklyRefreshHour',
+    );
 
     // Get the difference in days and normalize it so that it's between 0 and 6
     const daysSinceLastRefreshDay = (now.getDay() - refreshDay + 7) % 7;

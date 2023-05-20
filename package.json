@@ -43,7 +43,7 @@
         "run-build": "next start",
         "lint": "next lint",
         "prepare": "husky install",
-        "test": "jest --coverage"
+        "test": "jest --coverage --watch"
     },
     "lint-staged": {
         "*.{js,jsx,ts,tsx,css,md}": "prettier --write",
