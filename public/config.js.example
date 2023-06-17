@@ -19,4 +19,4 @@ const requests = {
     options: {
         // Detailed configuration options are available here, see the readme for details
     },
-];
+};
