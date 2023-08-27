@@ -12,7 +12,7 @@ export default async function fetchPlaylistVideos(request: PlaylistRequest) {
 
     async function executeFetch(pageToken?: string) {
         const data = await youtube.playlists.items(request.id, {
-            part: 'snippet',
+            part: 'snippet, contentDetails',
             maxResults: retrievalCount.toString(),
             pageToken: pageToken,
         });

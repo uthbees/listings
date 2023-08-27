@@ -71,7 +71,7 @@ function createDataArrayFromPromises({
                         const videos = promise.data as YoutubePlaylistItem[];
                         return videos.map((video) => ({
                             videoID: video.snippet.resourceId.videoId,
-                            publishedAt: video.snippet.publishedAt,
+                            publishedAt: video.contentDetails.videoPublishedAt,
                             playlistPosition: video.snippet.position,
                             videoTitle: video.snippet.title,
                             channelTitle: video.snippet.channelTitle,
