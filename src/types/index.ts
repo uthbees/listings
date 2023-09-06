@@ -21,6 +21,7 @@ export interface AppOptions {
     useWeeklyRefresh?: boolean;
     weeklyRefreshDay?: number;
     weeklyRefreshHour?: number;
+    invertSortDirection?: boolean;
 }
 
 export interface NormalizedVideoData {

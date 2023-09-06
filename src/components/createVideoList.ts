@@ -31,14 +31,24 @@ export default function createVideoList(
             const timeInMillisecondsA = Date.parse(a.publishedAt);
             const timeInMillisecondsB = Date.parse(b.publishedAt);
 
-            // If two videos were published at exactly the same time, they're probably
-            //		in a playlist together (because they were unprivated one at a time),
-            //		so we look at the position within the playlist
-            if (timeInMillisecondsA === timeInMillisecondsB)
-                return a.playlistPosition - b.playlistPosition;
-            else return timeInMillisecondsA - timeInMillisecondsB;
+            let comparison;
+            if (timeInMillisecondsA === timeInMillisecondsB) {
+                // If two videos were published at exactly the same time, they're probably
+                //		in a playlist together (because they were un-privated one at a time),
+                //		so we look at the position within the playlist
+                comparison = a.playlistPosition - b.playlistPosition;
+            } else {
+                comparison = timeInMillisecondsA - timeInMillisecondsB;
+            }
+
+            if (options.invertSortDirection === true) {
+                comparison = -comparison;
+            }
+
+            return comparison;
         });
 }
+
 function createDataArrayFromPromises({
     promises,
     type,

@@ -34,11 +34,12 @@ To add individual videos to your list, put the video IDs into an array at `expor
 
 #### Extra configuration
 
-To configure the app in detail, use the object at `exportedConfig.options`. Here are the available fields:
+For further configuration options, use the object at `exportedConfig.options`. Here are the available fields:
 
 -   `useWeeklyRefresh` (boolean): If true, will "release" (start displaying) newly published videos once a week, instead of immediately. This can be helpful to avoid feeling like you have to check back all the time.
     -   `weeklyRefreshDay` (int between 0 and 6): The day to trigger the refresh, with 0 being Sunday. Defaults to 0.
     -   `weeklyRefreshHour` (int between 0 and 23): The hour to trigger the refresh, with 0 being midnight. Defaults to 0.
+-   `invertSortDirection` (boolean): If true, switches the sort direction from putting the oldest videos at the top to putting the newest videos at the top.
 
 ### Problems with hosting publicly
 
