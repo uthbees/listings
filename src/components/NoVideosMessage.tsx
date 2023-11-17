@@ -1,7 +1,6 @@
 import { AppOptions } from '@/types';
-import { format } from 'date-fns';
-import getLatestCutoff from '@/utils/getLatestCutoff';
-import { getValidOption } from '@/utils/getValidOption';
+import { differenceInDays, format, isToday } from 'date-fns';
+import getCutoff from '@/utils/getCutoff';
 
 interface NoVideosMessageProps {
     stillLoading: boolean;
@@ -14,37 +13,27 @@ export default function NoVideosMessage({
 }: NoVideosMessageProps) {
     return (
         <div className="centerInPage" data-testid="noVideosMessage">
-            {stillLoading
-                ? 'Loading...'
-                : getEmptyMessage(options, getLatestCutoff(options))}
+            {stillLoading ? 'Loading...' : getEmptyMessage(options)}
         </div>
     );
 }
 
 export const EMPTY_MESSAGE_BASE = 'Nothing here!';
 
-export function getEmptyMessage(options: AppOptions, latestCutoff: Date) {
+export function getEmptyMessage(options: AppOptions) {
     let message = EMPTY_MESSAGE_BASE;
 
-    if (options.useWeeklyRefresh) {
-        const refreshDay = getValidOption(
-            options.weeklyRefreshDay,
-            'weeklyRefreshDay',
-        );
-        const refreshHour = getValidOption(
-            options.weeklyRefreshHour,
-            'weeklyRefreshHour',
-        );
+    const nextCutoff = getCutoff(options, 'next');
 
-        message += ' Check back after ' + format(latestCutoff, 'p');
+    if (options.timedRefresh?.enabled) {
+        message += ' Check back after ' + format(nextCutoff, 'p');
 
-        if (
-            new Date().getDay() !== refreshDay ||
-            new Date().getHours() >= refreshHour
-        ) {
-            message += ' next ' + format(latestCutoff, 'iiii') + '!';
-        } else {
+        if (isToday(nextCutoff)) {
             message += '!';
+        } else if (Math.abs(differenceInDays(new Date(), nextCutoff)) < 7) {
+            message += ' next ' + format(nextCutoff, 'iiii') + '!';
+        } else {
+            message += ` on the ${format(nextCutoff, 'do')}!`;
         }
     }
 

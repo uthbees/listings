@@ -17,10 +17,17 @@ export interface VideoRequest {
     id: string;
 }
 
+export interface AppOptionsRefreshPeriod {
+    interval?: 'weekly' | 'monthly';
+    day?: number;
+}
+
 export interface AppOptions {
-    useWeeklyRefresh?: boolean;
-    weeklyRefreshDay?: number;
-    weeklyRefreshHour?: number;
+    timedRefresh?: {
+        enabled: boolean;
+        refreshPeriod?: AppOptionsRefreshPeriod;
+        refreshHour?: number;
+    };
     invertSortDirection?: boolean;
 }
 
