@@ -10,6 +10,8 @@ import fetchPlaylistVideos from '@/components/fetchPlaylistVideos';
 import { startTransition, useReducer } from 'react';
 import NoVideosMessage from '@/components/NoVideosMessage';
 import fetchIndividualVideo from '@/components/fetchIndividualVideo';
+import { Fab } from '@mui/material';
+import ContentCopy from '@mui/icons-material/ContentCopy';
 
 interface ListingsProps {
     appConfig: AppConfig;
@@ -83,6 +85,14 @@ function ListingsInternal({ appConfig }: ListingsProps) {
         ) ||
         videoRequestPromises.some((request) => request.status === 'loading');
 
+    function handleCopyButtonClick() {
+        navigator.clipboard.writeText(
+            videoList
+                .map((video) => `https://youtube.com/watch?v=${video.videoID}`)
+                .join(' '),
+        );
+    }
+
     return (
         <div className="collectionContainer">
             {videoList.map((video) => (
@@ -104,6 +114,17 @@ function ListingsInternal({ appConfig }: ListingsProps) {
                     stillLoading={stillLoading}
                     options={appOptions}
                 />
+            ) : null}
+            {videoList.length !== 0 ? (
+                <div style={{ position: 'fixed', right: 30, bottom: 30 }}>
+                    <Fab
+                        color="primary"
+                        title="Copy URL list to clipboard"
+                        onClick={handleCopyButtonClick}
+                    >
+                        <ContentCopy />
+                    </Fab>
+                </div>
             ) : null}
         </div>
     );
