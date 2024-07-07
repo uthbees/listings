@@ -7,11 +7,13 @@ import {
 import VideoCard from '@/components/VideoCard';
 import createVideoList from '@/components/createVideoList';
 import fetchPlaylistVideos from '@/components/fetchPlaylistVideos';
-import { startTransition, useReducer } from 'react';
+import { startTransition, useReducer, useState } from 'react';
 import NoVideosMessage from '@/components/NoVideosMessage';
 import fetchIndividualVideo from '@/components/fetchIndividualVideo';
 import { Fab } from '@mui/material';
 import ContentCopy from '@mui/icons-material/ContentCopy';
+import { RestoreFromTrash } from '@mui/icons-material';
+import RestoreItemsModal from '@/components/RestoreItemsModal';
 
 interface ListingsProps {
     appConfig: AppConfig;
@@ -28,6 +30,8 @@ export default function Listings({ appConfig }: ListingsProps) {
 }
 
 function ListingsInternal({ appConfig }: ListingsProps) {
+    const [restorationModalOpen, setRestorationModalOpen] = useState(false);
+
     const requestedPlaylists: PlaylistRequest[] =
         appConfig.requests?.playlists || [];
     const requestedVideos: VideoRequest[] = appConfig.requests?.videos || [];
@@ -61,11 +65,20 @@ function ListingsInternal({ appConfig }: ListingsProps) {
     );
 
     function updateDoneVideoIDs(state: string[], action: UDVAction) {
-        const nextState = [...state];
+        let nextState = [...state];
 
         switch (action.actionType) {
             case 'add':
                 nextState.push(action.newID);
+                break;
+            case 'remove':
+                nextState = nextState.filter(
+                    (doneVideoID) => doneVideoID !== action.removedID,
+                );
+                break;
+            default:
+                // eslint-disable-next-line no-console
+                console.error('Action type not implemented.');
         }
 
         localStorage.setItem('doneVideoIDs', JSON.stringify(nextState));
@@ -115,8 +128,16 @@ function ListingsInternal({ appConfig }: ListingsProps) {
                     options={appOptions}
                 />
             ) : null}
-            {videoList.length !== 0 ? (
-                <div style={{ position: 'fixed', right: 30, bottom: 30 }}>
+            <div
+                style={{
+                    position: 'fixed',
+                    right: 30,
+                    bottom: 30,
+                    display: 'flex',
+                    gap: 10,
+                }}
+            >
+                {videoList.length !== 0 ? (
                     <Fab
                         color="primary"
                         title="Copy URL list to clipboard"
@@ -124,8 +145,26 @@ function ListingsInternal({ appConfig }: ListingsProps) {
                     >
                         <ContentCopy />
                     </Fab>
-                </div>
-            ) : null}
+                ) : null}
+                <Fab
+                    color="secondary"
+                    title="Restore deleted items"
+                    onClick={() => setRestorationModalOpen(true)}
+                >
+                    <RestoreFromTrash />
+                </Fab>
+            </div>
+            <RestoreItemsModal
+                open={restorationModalOpen}
+                onClose={() => setRestorationModalOpen(false)}
+                doneVideoIDs={doneVideoIDs}
+                restoreVideoID={(videoID) =>
+                    dispatchDoneVideoIDs({
+                        actionType: 'remove',
+                        removedID: videoID,
+                    })
+                }
+            />
         </div>
     );
 }
@@ -136,5 +175,9 @@ interface UDVActionAdd {
     actionType: 'add';
     newID: string;
 }
+interface UDVActionRemove {
+    actionType: 'remove';
+    removedID: string;
+}
 
-type UDVAction = UDVActionAdd;
+type UDVAction = UDVActionAdd | UDVActionRemove;
