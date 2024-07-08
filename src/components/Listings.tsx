@@ -63,8 +63,8 @@ function ListingsInternal({ appConfig }: ListingsProps) {
         updateDoneVideos,
         (() => {
             const initialDoneVideosString =
-                // TODO: migrate from legacy localStorage key
-                localStorage.getItem('doneVideoIDs');
+                localStorage.getItem('doneVideos');
+
             const initialDoneVideos: DoneVideo[] = initialDoneVideosString
                 ? JSON.parse(initialDoneVideosString)
                 : [];
@@ -89,7 +89,7 @@ function ListingsInternal({ appConfig }: ListingsProps) {
                 console.error('Action type not implemented.');
         }
 
-        localStorage.setItem('doneVideoIDs', JSON.stringify(nextState));
+        localStorage.setItem('doneVideos', JSON.stringify(nextState));
         return nextState;
     }
 
