@@ -1,4 +1,10 @@
-import { AppConfig, AppOptions, PlaylistRequest, VideoRequest } from '@/types';
+import {
+    AppConfig,
+    AppOptions,
+    DoneVideo,
+    PlaylistRequest,
+    VideoRequest,
+} from '@/types';
 import {
     QueryClient,
     QueryClientProvider,
@@ -53,27 +59,29 @@ function ListingsInternal({ appConfig }: ListingsProps) {
         })),
     });
 
-    const [doneVideoIDs, dispatchDoneVideoIDs] = useReducer(
-        updateDoneVideoIDs,
+    const [doneVideos, dispatchDoneVideos] = useReducer(
+        updateDoneVideos,
         (() => {
-            const initialDoneVideoIDsString =
+            const initialDoneVideosString =
+                // TODO: migrate from legacy localStorage key
                 localStorage.getItem('doneVideoIDs');
-            return initialDoneVideoIDsString
-                ? JSON.parse(initialDoneVideoIDsString)
+            const initialDoneVideos: DoneVideo[] = initialDoneVideosString
+                ? JSON.parse(initialDoneVideosString)
                 : [];
+            return initialDoneVideos;
         })(),
     );
 
-    function updateDoneVideoIDs(state: string[], action: UDVAction) {
+    function updateDoneVideos(state: DoneVideo[], action: UDVAction) {
         let nextState = [...state];
 
         switch (action.actionType) {
             case 'add':
-                nextState.push(action.newID);
+                nextState.push({ ...action.newVideo });
                 break;
             case 'remove':
                 nextState = nextState.filter(
-                    (doneVideoID) => doneVideoID !== action.removedID,
+                    (doneVideo) => doneVideo.id !== action.removedID,
                 );
                 break;
             default:
@@ -88,7 +96,7 @@ function ListingsInternal({ appConfig }: ListingsProps) {
     const videoList = createVideoList(
         playlistRequestPromises,
         videoRequestPromises,
-        doneVideoIDs,
+        doneVideos,
         appOptions,
     );
 
@@ -114,9 +122,12 @@ function ListingsInternal({ appConfig }: ListingsProps) {
                     video={video}
                     removeVideo={() =>
                         startTransition(() => {
-                            dispatchDoneVideoIDs({
+                            dispatchDoneVideos({
                                 actionType: 'add',
-                                newID: video.videoID,
+                                newVideo: {
+                                    id: video.videoID,
+                                    title: video.videoTitle,
+                                },
                             });
                         })
                     }
@@ -157,9 +168,9 @@ function ListingsInternal({ appConfig }: ListingsProps) {
             <RestoreItemsModal
                 open={restorationModalOpen}
                 onClose={() => setRestorationModalOpen(false)}
-                doneVideoIDs={doneVideoIDs}
-                restoreVideoID={(videoID) =>
-                    dispatchDoneVideoIDs({
+                doneVideos={doneVideos}
+                restoreVideo={(videoID) =>
+                    dispatchDoneVideos({
                         actionType: 'remove',
                         removedID: videoID,
                     })
@@ -173,7 +184,7 @@ const queryClient = new QueryClient();
 
 interface UDVActionAdd {
     actionType: 'add';
-    newID: string;
+    newVideo: Required<DoneVideo>;
 }
 interface UDVActionRemove {
     actionType: 'remove';

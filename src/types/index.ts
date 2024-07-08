@@ -39,3 +39,8 @@ export interface NormalizedVideoData {
     channelTitle: string;
     thumbnail: string;
 }
+
+export interface DoneVideo {
+    id: string;
+    title?: string;
+}

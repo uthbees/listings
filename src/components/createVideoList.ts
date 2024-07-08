@@ -1,16 +1,18 @@
 import { UseQueryResult } from '@tanstack/react-query';
 import { YoutubePlaylistItem, YoutubeVideo } from 'youtube.ts';
-import { AppOptions, NormalizedVideoData } from '@/types';
+import { AppOptions, DoneVideo, NormalizedVideoData } from '@/types';
 import { DEFAULT_THUMBNAIL_URL } from '@/utils/constants';
 import getCutoff from '@/utils/getCutoff';
 
 export default function createVideoList(
     playlistRequestPromises: UseQueryResult<YoutubePlaylistItem[]>[],
     videoRequestPromises: UseQueryResult<YoutubeVideo>[],
-    doneVideoIDs: string[],
+    doneVideos: DoneVideo[],
     options: AppOptions,
 ) {
     const latestCutoffMs = getCutoff(options, 'latest').getTime();
+
+    const doneVideoIDs = doneVideos.map((doneVideo) => doneVideo.id);
 
     return [
         ...createDataArrayFromPromises({

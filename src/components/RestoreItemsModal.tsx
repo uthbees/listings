@@ -6,17 +6,18 @@ import {
     Typography,
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
+import { DoneVideo } from '@/types';
 
 export default function RestoreItemsModal({
     open,
     onClose,
-    doneVideoIDs,
-    restoreVideoID,
+    doneVideos,
+    restoreVideo,
 }: {
     open: boolean;
     onClose: () => void;
-    doneVideoIDs: string[];
-    restoreVideoID: (restoredVideoID: string) => void;
+    doneVideos: DoneVideo[];
+    restoreVideo: (restoredVideoID: string) => void;
 }) {
     return (
         <Dialog open={open} onClose={onClose}>
@@ -46,12 +47,18 @@ export default function RestoreItemsModal({
                         boxSizing: 'border-box',
                     }}
                 >
-                    {doneVideoIDs.length > 0 ? (
-                        doneVideoIDs.map((doneVideoID) => (
+                    {doneVideos.length > 0 ? (
+                        // The array of done videos is ordered from oldest to newest, so we flip it to display the
+                        // videos that were most recently marked as done first.
+                        doneVideos.toReversed().map((doneVideo: DoneVideo) => (
                             <Chip
-                                key={doneVideoID}
-                                label={doneVideoID}
-                                onDelete={() => restoreVideoID(doneVideoID)}
+                                key={doneVideo.id}
+                                label={
+                                    doneVideo.title !== undefined
+                                        ? doneVideo.title
+                                        : `Title unavailable (id: ${doneVideo.id})`
+                                }
+                                onDelete={() => restoreVideo(doneVideo.id)}
                                 sx={{
                                     userSelect: 'unset',
                                     cursor: 'auto',
