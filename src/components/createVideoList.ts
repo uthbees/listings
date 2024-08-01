@@ -27,11 +27,11 @@ export default function createVideoList(
         .filter(
             (video) =>
                 !doneVideoIDs.includes(video.videoID) &&
-                Date.parse(video.publishedAt) < latestCutoffMs,
+                video.publishedAt.getTime() < latestCutoffMs,
         )
         .sort((a, b) => {
-            const timeInMillisecondsA = Date.parse(a.publishedAt);
-            const timeInMillisecondsB = Date.parse(b.publishedAt);
+            const timeInMillisecondsA = a.publishedAt.getTime();
+            const timeInMillisecondsB = b.publishedAt.getTime();
 
             let comparison;
             if (timeInMillisecondsA === timeInMillisecondsB) {
@@ -70,7 +70,7 @@ function createDataArrayFromPromises({
                         const video = promise.data as YoutubeVideo;
                         return {
                             videoID: video.id,
-                            publishedAt: video.snippet.publishedAt,
+                            publishedAt: new Date(video.snippet.publishedAt),
                             playlistPosition: 0,
                             videoTitle: video.snippet.title,
                             channelTitle: video.snippet.channelTitle,
@@ -83,7 +83,9 @@ function createDataArrayFromPromises({
                         const videos = promise.data as YoutubePlaylistItem[];
                         return videos.map((video) => ({
                             videoID: video.snippet.resourceId.videoId,
-                            publishedAt: video.contentDetails.videoPublishedAt,
+                            publishedAt: new Date(
+                                video.contentDetails.videoPublishedAt,
+                            ),
                             playlistPosition: video.snippet.position,
                             videoTitle: video.snippet.title,
                             channelTitle: video.snippet.channelTitle,

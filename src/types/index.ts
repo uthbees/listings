@@ -33,7 +33,7 @@ export interface AppOptions {
 
 export interface NormalizedVideoData {
     videoID: string;
-    publishedAt: string;
+    publishedAt: Date;
     playlistPosition: number;
     videoTitle: string;
     channelTitle: string;

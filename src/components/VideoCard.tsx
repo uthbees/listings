@@ -11,7 +11,7 @@ interface CardProps {
 export default function VideoCard({ video, removeVideo }: CardProps) {
     const [hidden, setHidden] = useState(false);
 
-    const datePublished = new Date(video.publishedAt).toLocaleDateString(
+    const datePublished = video.publishedAt.toLocaleDateString(
         'en-US',
         {
             month: 'long',
