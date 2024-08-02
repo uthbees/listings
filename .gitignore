@@ -8,9 +8,6 @@ src/config/*
 /.pnp
 .pnp.js
 
-# testing
-/coverage
-
 # next.js
 /.next/
 /listingsBuild/
