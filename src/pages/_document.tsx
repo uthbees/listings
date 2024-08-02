@@ -1,5 +1,5 @@
 import { Html, Head, Main, NextScript } from 'next/document';
-import getPathToPublicFolder from '@/utils/getPathToPublicFolder';
+import getPathToPublicFolder from '@/functions/getPathToPublicFolder';
 
 export default function Document() {
     return (

@@ -1,6 +1,6 @@
-import { AppOptions } from '@/types';
-import { getValidOption } from '@/utils/getValidOption';
+import { getValidOption } from '@/functions/getValidOption';
 import { add, isBefore, setDay } from 'date-fns';
+import { AppOptions } from '@/types/appConfig';
 
 export default function getCutoff(
     options: AppOptions,

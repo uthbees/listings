@@ -1,10 +1,4 @@
-import {
-    AppConfig,
-    AppOptions,
-    DoneVideo,
-    PlaylistRequest,
-    VideoRequest,
-} from '@/types';
+import { UnwatchedVideo } from '@/types';
 import {
     QueryClient,
     QueryClientProvider,
@@ -16,10 +10,17 @@ import fetchPlaylistVideos from '@/components/fetchPlaylistVideos';
 import { startTransition, useReducer, useState } from 'react';
 import NoVideosMessage from '@/components/NoVideosMessage';
 import fetchIndividualVideo from '@/components/fetchIndividualVideo';
-import { Fab } from '@mui/material';
+import { Fab, Typography } from '@mui/material';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import { RestoreFromTrash } from '@mui/icons-material';
 import RestoreItemsModal from '@/components/RestoreItemsModal';
+import {
+    AppConfig,
+    AppOptions,
+    ConfigPlaylistRequest,
+    ConfigVideoRequest,
+} from '@/types/appConfig';
+import mapArrayToObj from '@/functions/objUtils/mapArrayToObj';
 
 interface ListingsProps {
     appConfig: AppConfig;
@@ -38,16 +39,87 @@ export default function Listings({ appConfig }: ListingsProps) {
 function ListingsInternal({ appConfig }: ListingsProps) {
     const [restorationModalOpen, setRestorationModalOpen] = useState(false);
 
-    const requestedPlaylists: PlaylistRequest[] =
+    const [unwatchedVideos, dispatchUnwatchedVideos] = useReducer(
+        updateUnwatchedVideos,
+        undefined,
+        () => {
+            const rawUnwatchedVideosString =
+                localStorage.getItem('unwatchedVideos');
+
+            const rawUnwatchedVideos: (Omit<UnwatchedVideo, 'publishedAt'> & {
+                publishedAt: string;
+            })[] = rawUnwatchedVideosString
+                ? JSON.parse(rawUnwatchedVideosString)
+                : [];
+
+            return rawUnwatchedVideos.map((rawUnwatchedVideo) => ({
+                ...rawUnwatchedVideo,
+                publishedAt: new Date(rawUnwatchedVideo.publishedAt),
+            }));
+        },
+    );
+
+    function updateUnwatchedVideos(state: UnwatchedVideo[], action: UUVAction) {
+        let nextState = [...state];
+
+        switch (action.actionType) {
+            case 'add': {
+                const newVideos = Array.isArray(action.newVideos)
+                    ? action.newVideos
+                    : [action.newVideos];
+
+                nextState.push(...structuredClone(newVideos));
+                break;
+            }
+            case 'remove': {
+                const removedIds = Array.isArray(action.removedIds)
+                    ? action.removedIds
+                    : [action.removedIds];
+
+                removedIds.forEach((removedId) => {
+                    nextState = nextState.filter(
+                        (unwatchedVideo) => unwatchedVideo.id !== removedId,
+                    );
+                });
+                break;
+            }
+            default:
+                // eslint-disable-next-line no-console
+                console.error('Action type not implemented.');
+        }
+
+        localStorage.setItem('unwatchedVideos', JSON.stringify(nextState));
+        return nextState;
+    }
+
+    const requestedPlaylists: ConfigPlaylistRequest[] =
         appConfig.requests?.playlists || [];
-    const requestedVideos: VideoRequest[] = appConfig.requests?.videos || [];
+    const requestedVideos: ConfigVideoRequest[] =
+        appConfig.requests?.videos || [];
     const appOptions: AppOptions = appConfig.options || {};
 
     const playlistRequestPromises = useQueries({
         queries: requestedPlaylists.map((request) => ({
             ...reactQuerySettings,
             queryKey: [request.id],
-            queryFn: () => fetchPlaylistVideos(request),
+            queryFn: () =>
+                fetchPlaylistVideos({
+                    playlistId: request.id,
+                    targetVideos: unwatchedVideos.filter(
+                        (video) => video.playlistId === request.id,
+                    ),
+                    retrieveAll: request.retrieveAll,
+                    markVideosAsDone: (videoIds) =>
+                        dispatchUnwatchedVideos({
+                            actionType: 'remove',
+                            removedIds: videoIds,
+                        }),
+                    markVideosAsUnwatched: (videos) =>
+                        dispatchUnwatchedVideos({
+                            actionType: 'add',
+                            newVideos: videos,
+                        }),
+                }),
         })),
     });
 
@@ -59,48 +131,20 @@ function ListingsInternal({ appConfig }: ListingsProps) {
         })),
     });
 
-    const [doneVideos, dispatchDoneVideos] = useReducer(
-        updateDoneVideos,
-        (() => {
-            const initialDoneVideosString =
-                localStorage.getItem('doneVideos');
-
-            const initialDoneVideos: DoneVideo[] = initialDoneVideosString
-                ? JSON.parse(initialDoneVideosString)
-                : [];
-            return initialDoneVideos;
-        })(),
-    );
-
-    function updateDoneVideos(state: DoneVideo[], action: UDVAction) {
-        let nextState = [...state];
-
-        switch (action.actionType) {
-            case 'add':
-                nextState.push({ ...action.newVideo });
-                break;
-            case 'remove':
-                nextState = nextState.filter(
-                    (doneVideo) => doneVideo.id !== action.removedID,
-                );
-                break;
-            default:
-                // eslint-disable-next-line no-console
-                console.error('Action type not implemented.');
-        }
-
-        localStorage.setItem('doneVideos', JSON.stringify(nextState));
-        return nextState;
-    }
-
-    const videoList = createVideoList(
-        playlistRequestPromises,
-        videoRequestPromises,
-        doneVideos,
+    const { visibleVideosList, doneVideosList } = createVideoList(
+        mapArrayToObj(playlistRequestPromises, (promise, index) => [
+            requestedPlaylists[index].id,
+            promise,
+        ]),
+        mapArrayToObj(videoRequestPromises, (promise, index) => [
+            requestedVideos[index].id,
+            promise,
+        ]),
+        unwatchedVideos,
         appOptions,
     );
 
-    const stillLoading =
+    const loading =
         playlistRequestPromises.some(
             (request) => request.status === 'loading',
         ) ||
@@ -108,36 +152,30 @@ function ListingsInternal({ appConfig }: ListingsProps) {
 
     function handleCopyButtonClick() {
         navigator.clipboard.writeText(
-            videoList
-                .map((video) => `https://youtube.com/watch?v=${video.videoID}`)
+            visibleVideosList
+                .map((video) => `https://youtube.com/watch?v=${video.videoId}`)
                 .join(' '),
         );
     }
 
     return (
         <div className="collectionContainer">
-            {videoList.map((video) => (
+            {visibleVideosList.map((video) => (
                 <VideoCard
-                    key={video.videoID}
+                    key={video.videoId}
                     video={video}
                     removeVideo={() =>
                         startTransition(() => {
-                            dispatchDoneVideos({
-                                actionType: 'add',
-                                newVideo: {
-                                    id: video.videoID,
-                                    title: video.videoTitle,
-                                },
+                            dispatchUnwatchedVideos({
+                                actionType: 'remove',
+                                removedIds: video.videoId,
                             });
                         })
                     }
                 />
             ))}
-            {videoList.length === 0 ? (
-                <NoVideosMessage
-                    stillLoading={stillLoading}
-                    options={appOptions}
-                />
+            {visibleVideosList.length === 0 && !loading ? (
+                <NoVideosMessage appOptions={appOptions} />
             ) : null}
             <div
                 style={{
@@ -148,7 +186,15 @@ function ListingsInternal({ appConfig }: ListingsProps) {
                     gap: 10,
                 }}
             >
-                {videoList.length !== 0 ? (
+                {loading ? (
+                    <Typography
+                        className="centerContentsY"
+                        style={{ marginRight: '1rem' }}
+                    >
+                        Loading...
+                    </Typography>
+                ) : null}
+                {visibleVideosList.length !== 0 ? (
                     <Fab
                         color="primary"
                         title="Copy URL list to clipboard"
@@ -168,11 +214,15 @@ function ListingsInternal({ appConfig }: ListingsProps) {
             <RestoreItemsModal
                 open={restorationModalOpen}
                 onClose={() => setRestorationModalOpen(false)}
-                doneVideos={doneVideos}
-                restoreVideo={(videoID) =>
-                    dispatchDoneVideos({
-                        actionType: 'remove',
-                        removedID: videoID,
+                fetchedDoneVideos={doneVideosList}
+                restoreVideo={(video) =>
+                    dispatchUnwatchedVideos({
+                        actionType: 'add',
+                        newVideos: {
+                            id: video.videoId,
+                            playlistId: video.requestSourceId,
+                            publishedAt: video.publishedAt,
+                        },
                     })
                 }
             />
@@ -182,13 +232,13 @@ function ListingsInternal({ appConfig }: ListingsProps) {
 
 const queryClient = new QueryClient();
 
-interface UDVActionAdd {
+interface UUVActionAdd {
     actionType: 'add';
-    newVideo: Required<DoneVideo>;
+    newVideos: UnwatchedVideo | UnwatchedVideo[];
 }
-interface UDVActionRemove {
+interface UUVActionRemove {
     actionType: 'remove';
-    removedID: string;
+    removedIds: string | string[];
 }
 
-type UDVAction = UDVActionAdd | UDVActionRemove;
+type UUVAction = UUVActionAdd | UUVActionRemove;

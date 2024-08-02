@@ -6,18 +6,18 @@ import {
     Typography,
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
-import { DoneVideo } from '@/types';
+import { FetchedVideo } from '@/types';
 
 export default function RestoreItemsModal({
     open,
     onClose,
-    doneVideos,
+    fetchedDoneVideos,
     restoreVideo,
 }: {
     open: boolean;
     onClose: () => void;
-    doneVideos: DoneVideo[];
-    restoreVideo: (restoredVideoID: string) => void;
+    fetchedDoneVideos: FetchedVideo[];
+    restoreVideo: (restoredVideo: FetchedVideo) => void;
 }) {
     return (
         <Dialog open={open} onClose={onClose}>
@@ -47,18 +47,19 @@ export default function RestoreItemsModal({
                         boxSizing: 'border-box',
                     }}
                 >
-                    {doneVideos.length > 0 ? (
-                        // The array of done videos is ordered from oldest to newest, so we flip it to display the
-                        // videos that were most recently marked as done first.
-                        doneVideos.toReversed().map((doneVideo: DoneVideo) => (
+                    <Typography
+                        variant="subtitle2"
+                        style={{ marginBottom: '1rem', textAlign: 'center' }}
+                    >
+                        Old items deleted before this session may not be
+                        available.
+                    </Typography>
+                    {fetchedDoneVideos.length > 0 ? (
+                        fetchedDoneVideos.map((doneVideo) => (
                             <Chip
-                                key={doneVideo.id}
-                                label={
-                                    doneVideo.title !== undefined
-                                        ? doneVideo.title
-                                        : `Title unavailable (id: ${doneVideo.id})`
-                                }
-                                onDelete={() => restoreVideo(doneVideo.id)}
+                                key={doneVideo.videoId}
+                                label={doneVideo.videoTitle}
+                                onDelete={() => restoreVideo(doneVideo)}
                                 sx={{
                                     userSelect: 'unset',
                                     cursor: 'auto',

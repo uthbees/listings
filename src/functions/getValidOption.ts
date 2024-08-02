@@ -2,9 +2,9 @@ import {
     DEFAULT_WEEKLY_REFRESH_DAY,
     DEFAULT_MONTHLY_REFRESH_DAY,
     DEFAULT_TIMED_REFRESH_HOUR,
-} from '@/utils/constants';
-import { AppOptionsRefreshPeriod } from '@/types';
-import isAnObject from '@/utils/isAnObject';
+} from '@/constants';
+import isAnObject from '@/functions/objUtils/isAnObject';
+import { AppOptionsRefreshPeriod } from '@/types/appConfig';
 
 export function getValidOption(
     option: AppOptionsRefreshPeriod | undefined,
@@ -26,11 +26,6 @@ export function getValidOption(option: unknown, optionName: unknown) {
                         option?.day <= 31
                     ) {
                         return option;
-                    } else {
-                        console.log(
-                            `Option ${optionName} invalid; using default instead`,
-                            option,
-                        );
                     }
                     return {
                         interval: 'monthly',

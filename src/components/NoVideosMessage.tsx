@@ -1,31 +1,23 @@
-import { AppOptions } from '@/types';
 import { differenceInDays, format, isToday } from 'date-fns';
-import getCutoff from '@/utils/getCutoff';
+import getCutoff from '@/functions/getCutoff';
+import { AppOptions } from '@/types/appConfig';
 
 interface NoVideosMessageProps {
-    stillLoading: boolean;
-    options: AppOptions;
+    appOptions: AppOptions;
 }
 
-export default function NoVideosMessage({
-    stillLoading,
-    options,
-}: NoVideosMessageProps) {
-    return (
-        <div className="centerInPage">
-            {stillLoading ? 'Loading...' : getEmptyMessage(options)}
-        </div>
-    );
+export default function NoVideosMessage({ appOptions }: NoVideosMessageProps) {
+    return <div className="centerInPage">{getEmptyMessage(appOptions)}</div>;
 }
 
 export const EMPTY_MESSAGE_BASE = 'Nothing here!';
 
-export function getEmptyMessage(options: AppOptions) {
+export function getEmptyMessage(appOptions: AppOptions) {
     let message = EMPTY_MESSAGE_BASE;
 
-    const nextCutoff = getCutoff(options, 'next');
+    const nextCutoff = getCutoff(appOptions, 'next');
 
-    if (options.timedRefresh?.enabled) {
+    if (appOptions.timedRefresh?.enabled) {
         message += ' Check back after ' + format(nextCutoff, 'p');
 
         if (isToday(nextCutoff)) {

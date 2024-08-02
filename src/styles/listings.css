@@ -56,3 +56,8 @@
     justify-content: center;
     align-items: center;
 }
+
+.centerContentsY {
+    display: flex;
+    align-items: center;
+}

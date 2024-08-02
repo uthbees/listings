@@ -1,9 +1,10 @@
 import Head from 'next/head';
 import Script from 'next/script';
-import getPathToPublicFolder from '@/utils/getPathToPublicFolder';
+import getPathToPublicFolder from '@/functions/getPathToPublicFolder';
 import Listings from '@/components/Listings';
 import { useState } from 'react';
-import { AppConfig } from '@/types';
+
+import { AppConfig } from '@/types/appConfig';
 
 export default function App() {
     const [appConfig, setAppConfig] = useState<AppConfig | null>(null);

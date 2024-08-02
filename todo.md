@@ -1,7 +1,8 @@
-### Feature ideas
+- Replace the retrieveAll config parameter and individual video listings with UI.
+- Replace the other config stuff with UI?
 
--   Indicate video lengths (requires more queries, but I can cache them)
+
+-   Indicate video lengths (requires more queries, but I can cache them).
 -   Try to make the page look better - header, etc.
-    -   Fix the tooltips being bad - I think it's better to be able to see the full title at a glance
+    -   Fix the tooltips being bad - I think it's better to be able to see the full title at a glance.
 -   Add animation on video removal?
--   Allow video restoration???
