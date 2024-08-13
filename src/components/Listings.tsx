@@ -5,11 +5,11 @@ import {
     useQueries,
 } from '@tanstack/react-query';
 import VideoCard from '@/components/VideoCard';
-import createVideoList from '@/components/createVideoList';
-import fetchPlaylistVideos from '@/components/fetchPlaylistVideos';
+import createVideoList from '@/functions/createVideoList';
+import fetchPlaylistVideos from '@/functions/fetchPlaylistVideos';
 import { startTransition, useReducer, useState } from 'react';
 import NoVideosMessage from '@/components/NoVideosMessage';
-import fetchIndividualVideo from '@/components/fetchIndividualVideo';
+import fetchIndividualVideo from '@/functions/fetchIndividualVideo';
 import { Fab, Typography } from '@mui/material';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import { RestoreFromTrash } from '@mui/icons-material';
