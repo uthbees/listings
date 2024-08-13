@@ -31,7 +31,10 @@ export default async function fetchPlaylistVideos(
             10,
         );
     } else {
-        lastCheckedPlaylistTimestamp = preFetchingTimestamp;
+        // For new channels, show all the videos if retrieveAll is true and show none of them up to the current moment otherwise.
+        lastCheckedPlaylistTimestamp = shouldRetrieveAll
+            ? 0
+            : preFetchingTimestamp;
     }
 
     const fetchedVideos: YoutubePlaylistItem[] = [];
