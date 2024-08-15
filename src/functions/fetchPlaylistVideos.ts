@@ -114,25 +114,37 @@ export default async function fetchPlaylistVideos(
 
 function warnAboutMissingTargetVideos(
     playlistId: string,
-    missingTargetVideosIds: string[],
+    missingTargetVideoIds: string[],
+    markVideosAsDone: (videoIds: string[]) => void,
+) {
+    let alertMessage: string;
+    if (missingTargetVideoIds.length === 1) {
+        alertMessage = `Failed to find video with id ${missingTargetVideoIds[0]} in playlist with id ${playlistId}.`;
+    } else {
+        alertMessage = `Failed to find ${missingTargetVideoIds.length} videos in playlist with id ${playlistId}. See console for video ids.`;
+    }
+
+    warnAboutMissingVideos(
+        `Failed to find ${missingTargetVideoIds.length} videos in playlist with id ${playlistId}.`,
+        alertMessage,
+        missingTargetVideoIds,
+        markVideosAsDone,
+    );
+}
+
+export function warnAboutMissingVideos(
+    consoleMessage: string,
+    alertMessage: string,
+    missingTargetVideoIds: string[],
     markVideosAsDone: (videoIds: string[]) => void,
 ) {
     // eslint-disable-next-line no-console
-    console.warn(
-        `Failed to find ${missingTargetVideosIds.length} videos in playlist with id ${playlistId}. Ids:`,
-        missingTargetVideosIds,
+    console.warn(`${consoleMessage} Ids:`, missingTargetVideoIds);
+
+    const removeMissingVideos = confirm(
+        `${alertMessage}\n\nRemove missing videos from unwatched videos list?`,
     );
-
-    let alertMessage: string;
-    if (missingTargetVideosIds.length === 1) {
-        alertMessage = `Failed to find video with id ${missingTargetVideosIds[0]} in playlist with id ${playlistId}.`;
-    } else {
-        alertMessage = `Failed to find ${missingTargetVideosIds.length} videos in playlist with id ${playlistId}. See console for video ids.`;
-    }
-    alertMessage += '\n\nRemove from unwatched videos list?';
-
-    const removeMissingVideos = confirm(alertMessage);
     if (removeMissingVideos) {
-        markVideosAsDone(missingTargetVideosIds);
+        markVideosAsDone(missingTargetVideoIds);
     }
 }

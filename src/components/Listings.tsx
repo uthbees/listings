@@ -6,8 +6,17 @@ import {
 } from '@tanstack/react-query';
 import VideoCard from '@/components/VideoCard';
 import createVideoList from '@/functions/createVideoList';
-import fetchPlaylistVideos from '@/functions/fetchPlaylistVideos';
-import { startTransition, useReducer, useState } from 'react';
+import fetchPlaylistVideos, {
+    warnAboutMissingVideos,
+} from '@/functions/fetchPlaylistVideos';
+import {
+    startTransition,
+    useCallback,
+    useEffect,
+    useMemo,
+    useReducer,
+    useState,
+} from 'react';
 import NoVideosMessage from '@/components/NoVideosMessage';
 import fetchIndividualVideo from '@/functions/fetchIndividualVideo';
 import { Fab, Typography } from '@mui/material';
@@ -27,6 +36,7 @@ interface ListingsProps {
 }
 
 const reactQuerySettings = { staleTime: Infinity, refetchOnWindowFocus: false };
+const queryClient = new QueryClient();
 
 export default function Listings({ appConfig }: ListingsProps) {
     return (
@@ -38,6 +48,10 @@ export default function Listings({ appConfig }: ListingsProps) {
 
 function ListingsInternal({ appConfig }: ListingsProps) {
     const [restorationModalOpen, setRestorationModalOpen] = useState(false);
+    // Sometimes we want to show a notice when a playlist is missing (has no request). This tracks which ones we've shown the notice for.
+    const [warnedMissingPlaylistIds, setWarnedMissingPlaylistIds] = useState<
+        string[]
+    >([]);
 
     const [unwatchedVideos, dispatchUnwatchedVideos] = useReducer(
         updateUnwatchedVideos,
@@ -92,8 +106,27 @@ function ListingsInternal({ appConfig }: ListingsProps) {
         return nextState;
     }
 
-    const requestedPlaylists: ConfigPlaylistRequest[] =
-        appConfig.requests?.playlists || [];
+    const markVideosAsDone = useCallback(
+        (videoIds: string | string[]) =>
+            dispatchUnwatchedVideos({
+                actionType: 'remove',
+                removedIds: videoIds,
+            }),
+        [],
+    );
+    const markVideosAsUnwatched = useCallback(
+        (videos: UnwatchedVideo | UnwatchedVideo[]) =>
+            dispatchUnwatchedVideos({
+                actionType: 'add',
+                newVideos: videos,
+            }),
+        [],
+    );
+
+    const requestedPlaylists: ConfigPlaylistRequest[] = useMemo(
+        () => appConfig.requests?.playlists || [],
+        [appConfig.requests?.playlists],
+    );
     const requestedVideos: ConfigVideoRequest[] =
         appConfig.requests?.videos || [];
     const appOptions: AppOptions = appConfig.options || {};
@@ -109,19 +142,57 @@ function ListingsInternal({ appConfig }: ListingsProps) {
                         (video) => video.playlistId === request.id,
                     ),
                     retrieveAll: request.retrieveAll,
-                    markVideosAsDone: (videoIds) =>
-                        dispatchUnwatchedVideos({
-                            actionType: 'remove',
-                            removedIds: videoIds,
-                        }),
-                    markVideosAsUnwatched: (videos) =>
-                        dispatchUnwatchedVideos({
-                            actionType: 'add',
-                            newVideos: videos,
-                        }),
+                    markVideosAsDone,
+                    markVideosAsUnwatched,
                 }),
         })),
     });
+
+    // Warn about any unwatched videos with playlist ids that don't have a request.
+    useEffect(() => {
+        const unwatchedVideoUniquePlaylistIds = new Set<string>();
+
+        unwatchedVideos.forEach((unwatchedVideo) => {
+            unwatchedVideoUniquePlaylistIds.add(unwatchedVideo.playlistId);
+        });
+
+        const requestedPlaylistIds = new Set<string>();
+
+        requestedPlaylists.forEach((requestedPlaylist) => {
+            requestedPlaylistIds.add(requestedPlaylist.id);
+        });
+
+        const missingPlaylistIds =
+            unwatchedVideoUniquePlaylistIds.difference(requestedPlaylistIds);
+
+        missingPlaylistIds.forEach((missingPlaylistId) => {
+            // Don't show this warning if we've already shown it.
+            // Note: Warnings do appear twice in development mode because of strict mode, but to fix it properly, we
+            // would need to set up an actual UI instead of just using alerts, and I don't care that much.
+            if (warnedMissingPlaylistIds.includes(missingPlaylistId)) {
+                return;
+            }
+            setWarnedMissingPlaylistIds((prevState) => [
+                ...prevState,
+                missingPlaylistId,
+            ]);
+
+            const missingVideoIds = unwatchedVideos
+                .filter((video) => video.playlistId === missingPlaylistId)
+                .map((video) => video.id);
+
+            warnAboutUnwatchedVideosWithNoPlaylist(
+                missingVideoIds,
+                missingPlaylistId,
+                markVideosAsDone,
+            );
+        });
+    }, [
+        markVideosAsDone,
+        requestedPlaylists,
+        unwatchedVideos,
+        warnedMissingPlaylistIds,
+    ]);
 
     const videoRequestPromises = useQueries({
         queries: requestedVideos.map((request) => ({
@@ -230,7 +301,25 @@ function ListingsInternal({ appConfig }: ListingsProps) {
     );
 }
 
-const queryClient = new QueryClient();
+function warnAboutUnwatchedVideosWithNoPlaylist(
+    missingVideoIds: string[],
+    playlistId: string,
+    markVideosAsDone: (videoIds: string[]) => void,
+) {
+    let alertMessage: string;
+    if (missingVideoIds.length === 1) {
+        alertMessage = `The unwatched video with id ${missingVideoIds[0]} has a playlist id ${playlistId}, but there is no request for that playlist.`;
+    } else {
+        alertMessage = `There are ${missingVideoIds.length} videos with a playlist id of ${playlistId}, but there is no request for that playlist. See console for video ids.`;
+    }
+
+    warnAboutMissingVideos(
+        `There are ${missingVideoIds.length} unwatched videos with a playlist id of ${playlistId}, but there is no request for that playlist.`,
+        alertMessage,
+        missingVideoIds,
+        markVideosAsDone,
+    );
+}
 
 interface UUVActionAdd {
     actionType: 'add';
