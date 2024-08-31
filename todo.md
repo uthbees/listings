@@ -1,3 +1,7 @@
+### Misc
+
+-   Add an in-app notes section - intended primarily for tracking partial watch progress, but I guess it could be used for other things too.
+
 ### Config overhaul (switching from a file to UI/localStorage)
 
 -   Add an area to view your config.
@@ -15,6 +19,6 @@
 
 ---
 
-### Misc
+### Backlog
 
 -   Indicate video lengths? (Would require more queries, but they could be cached.)
