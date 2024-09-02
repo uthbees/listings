@@ -4,12 +4,13 @@
 
 ### Config overhaul (switching from a file to UI/localStorage)
 
--   Add an area to view your config.
+-   Add an area for the user to view their config.
 -   Set up a system for saving config elements in localStorage.
     -   This system should be transitory, allowing for saving some config elements in localStorage, but able to respect the config file when a given config element has no UI yet.
 -   Implement safety measures to reduce the risk of losing the data:
-    -   Add a button to back up all data. (No need to implement a feature to read the backups at this time.)
-        -   Store a timestamp whenever a backup is made and prompt to make another if it's been more than a month (or however long).
+    -   Add a button to back up all data - store a timestamp whenever a backup is made and prompt to make another if it's been more than a month (or however long).
+        -   Alternatively, add Google Drive integration and automatically back up all data on every action.
+        -   Either way, also implement a method for loading the backups - it should be easy. (If it turns out to be not so easy, maybe don't bother right now.)
     -   Switch from localStorage to IndexedDB.
         -   Create a wrapper function that checks for a QuotaExceededError and handles it somehow.
         -   Call navigator.storage.persist() somewhere.
